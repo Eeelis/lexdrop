@@ -1,6 +1,8 @@
 # lexdrop
 Lexdrop is a casual word game designed for mobile devices. A prototype can be played with keyboard at [itch.io](https://eelitch.itch.io/lexdrop).
 
+Built in Unity Engine 2020.3.25f1.1418.
+
 <br>
 
 ---
