@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using UnityEngine.Networking;
 using System.Linq;
 
-
 public class WordManager : MonoBehaviour
 {
     public static WordManager wordManager;
