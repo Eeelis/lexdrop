@@ -8,8 +8,8 @@ Lexdrop is a casual word game designed for mobile devices. A prototype can be pl
 <br>
 
 <div style="display: flex;">
-  <img src="https://github.com/Eeelis/lexdrop/blob/main/Images/mainMenu.jpg" style="flex: 1; margin-right: 10px;">
-  <img src="https://github.com/Eeelis/lexdrop/blob/main/Images/inGame.jpg" style="flex: 1;">
+  <img src="https://github.com/Eeelis/lexdrop/blob/main/Images/mainMenu.png" style="flex: 1; margin-right: 10px;">
+  <img src="https://github.com/Eeelis/lexdrop/blob/main/Images/inGame.png" style="flex: 1;">
 </div>
 
 
