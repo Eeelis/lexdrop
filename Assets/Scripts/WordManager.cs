@@ -287,7 +287,7 @@ public class WordManager : MonoBehaviour
     }
 
     // Moves a letter to given position in a a parabolic curve.
-    // We achieve this by splitting up the curve into multiple straight lines, and tweening the letter in along them. 
+    // We achieve this by splitting up the curve into multiple straight lines, and tweening the letter along them. 
     public void moveLetter(Letter l, Vector3 target)
     {
         Vector3 startPoint = l.transform.position;
