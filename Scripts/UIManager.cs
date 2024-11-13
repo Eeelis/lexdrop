@@ -7,39 +7,58 @@ using System;
 public class UIManager : MonoBehaviour
 {
     [SerializeField] private GameObject gameUI;
-    [SerializeField] private GameObject scoreText;
     [SerializeField] private GameObject mainMenu;
     [SerializeField] private GameObject gameOverScreen;
     [SerializeField] private GameObject newGameButton;
     [SerializeField] private GameObject startGameButton;
-    
+
+    [SerializeField] private TMP_Text scoreText;
     [SerializeField] private TMP_Text gameOverText;
     [SerializeField] private TMP_Text gameOverScoreText;
     [SerializeField] private TMP_Text highScoreText;
     [SerializeField] private TMP_Text lastPossibleWordText;
 
+    private Coroutine showGameOverScreenCoroutine;
+    private Coroutine animateScoreTextCoroutine;
+
     private int currentScore;
 
     public static event Action OnGameStart = () => {};
 
-    private void Awake()
+    private void Start()
     {
         WordManager.OnScoreIncreased += UpdateScoreText;
         WordManager.OnGameOver += ShowGameOverScreen;
-    }
+        WordManager.OnGameOver += StoreHighScore;
+        WordManager.OnGameOver += ResetScore;
 
-    private void Start()
-    {
-        highScoreText.text = "High Score: " + PlayerPrefs.GetInt("highscore").ToString();
+        highScoreText.text = "High Score: " + PlayerPrefs.GetInt("highscore", 0).ToString();
+
         mainMenu.SetActive(true);
+        gameUI.SetActive(false);
+        gameOverScreen.SetActive(false);
     }
 
-    private void UpdateScoreText()
+    private void ResetScore(string lastPossibleWord)
+    {
+        currentScore = 0;
+        scoreText.text = currentScore.ToString();
+    }
+
+    private void StoreHighScore(string lastPossibleWord)
+    {
+        if (currentScore > PlayerPrefs.GetInt("highscore", 0))
+        {
+            PlayerPrefs.SetInt("highscore", currentScore);
+        }
+    }
+
+    public void UpdateScoreText()
     {
         currentScore += 1;
-        scoreText.GetComponent<TextMeshPro>().text = currentScore.ToString();
-        LeanTween.cancel(scoreText);
-        LeanTween.scale(scoreText, scoreText.transform.localScale * 1.5f, 0.75f).setEasePunch(); 
+        scoreText.text = currentScore.ToString();
+        LeanTween.cancel(scoreText.gameObject);
+        LeanTween.scale(scoreText.gameObject, scoreText.transform.localScale * 1.5f, 0.75f).setEasePunch(); 
     }
 
     private void Update()
@@ -48,8 +67,16 @@ public class UIManager : MonoBehaviour
         {
             if (Input.GetKeyDown(KeyCode.Return))
             {
-                StopCoroutine(AnimateGameOverScreen());
-                StopCoroutine(AnimateScoreText());
+                if (showGameOverScreenCoroutine != null)
+                {
+                    StopCoroutine(showGameOverScreenCoroutine);
+                }
+                
+                if (animateScoreTextCoroutine != null)
+                {
+                    StopCoroutine(animateScoreTextCoroutine);
+                }
+                
                 NewGame();
             }
         }
@@ -63,14 +90,9 @@ public class UIManager : MonoBehaviour
         gameOverText.text = "";
         gameOverScoreText.text = "";
 
-        StartCoroutine(AnimateGameOverScreen());
+        showGameOverScreenCoroutine = StartCoroutine(AnimateGameOverScreen());
 
         lastPossibleWordText.text = "Last possible word: " + lastPossibleWord;
-
-        if (currentScore > highScore)
-        {
-            PlayerPrefs.SetInt("highscore", currentScore);
-        }
     }
 
     private IEnumerator AnimateGameOverScreen()
@@ -91,12 +113,12 @@ public class UIManager : MonoBehaviour
             yield return new WaitForSeconds(0.08f);
         }
 
-        StartCoroutine(AnimateScoreTextInGameOverScreen());
+        animateScoreTextCoroutine = StartCoroutine(AnimateScoreText());
     }
 
-    private IEnumerator AnimateScoreTextInGameOverScreen()
+    private IEnumerator AnimateScoreText()
     {
-        string text = "Score: " + currentScore + "\n\nHigh Score: " + PlayerPrefs.GetInt("highscore").ToString();
+        string text = "Score: " + currentScore + "\n\nHigh Score: " + PlayerPrefs.GetInt("highscore", 0).ToString();
         int totalCharacters = text.Length;
         int currentCharacter = 0;
 
@@ -124,14 +146,12 @@ public class UIManager : MonoBehaviour
         LeanTween.moveLocalY(newGameButton, 0, 0.75f).setEaseOutExpo();
     }
 
-    public void StartNewGame()
+    public void NewGame()
     {
-        currentScore = 0;
-
         AudioManager.Instance.PlayAudioClip(AudioManager.AudioClips.StartGame);
 
-        LeanTween.moveLocalY(newGameButton, -500, 0.5f).setEaseInBack();
-        LeanTween.moveLocalY(startGameButton, -500, 0.5f).setEaseInBack().setOnComplete( () => {
+        LeanTween.moveLocalY(newGameButton, -5000, 0.5f).setEaseInBack();
+        LeanTween.moveLocalY(startGameButton, -5000, 0.5f).setEaseInBack().setOnComplete( () => {
                 gameOverScreen.SetActive(false);
                 mainMenu.SetActive(false);
                 gameUI.SetActive(true);
@@ -140,15 +160,13 @@ public class UIManager : MonoBehaviour
         );
     }
 
-    // Called on mouse over
     public void HighLightNewGameButton()
     {
         LeanTween.scale(newGameButton, new Vector3(1.05f, 1.05f, 1.05f), 0.2f);
         LeanTween.scale(startGameButton, new Vector3(1.05f, 1.05f, 1.05f), 0.2f);
     }
 
-    // Called on mouse exit
-    public void UnHighLightNewGameButton()
+    public void ResetNewGameButton()
     {
         LeanTween.scale(newGameButton, Vector3.one, 0.2f);
         LeanTween.scale(startGameButton, Vector3.one, 0.2f);
