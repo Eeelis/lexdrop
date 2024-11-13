@@ -5,18 +5,27 @@ using TMPro;
 
 public class Letter : MonoBehaviour
 {
+    [SerializeField] private TMP_Text characterText;
     private WordManager wordManager;
     private float fallingSpeed;
-    private float wordYpos = -3.3f;
+    private float wordYpos = -625f;
     private int currentLane = 2;
     private bool isFalling = false;
-    
-    public void Initialize(WordManager wordManager, float fallingSpeed, string character)
+
+    public void Initialize(WordManager wordManager, float fallingSpeed, string character, Transform ui, float wordYpos)
     {
-        GetComponent<TextMeshPro>().text = character;
+        this.wordYpos = wordYpos;
+        characterText.text = character;
         this.wordManager = wordManager;
         this.fallingSpeed = fallingSpeed;
         isFalling = true;
+        transform.SetParent(ui, true);
+        transform.localPosition = new Vector3(0f, transform.localPosition.y, transform.localPosition.z);
+    }
+
+    public string GetCharacter()
+    {
+        return characterText.text;
     }
 
     private void Update()
@@ -46,7 +55,7 @@ public class Letter : MonoBehaviour
 
     private void Fall()
     {
-        if (transform.position.y > wordYpos)
+        if (transform.localPosition.y > wordYpos)
         {
             transform.Translate(Vector3.down * fallingSpeed * Time.deltaTime);
         }
@@ -60,19 +69,19 @@ public class Letter : MonoBehaviour
     {
         if (currentLane <= 0) { return; }
 
-        int moveAmount = 0;
+        float moveAmount = 0;
         int originalLane = currentLane;
 
         do 
         {
-            moveAmount += 1;
+            moveAmount += (Screen.width / 5) * 0.9f;
             currentLane -= 1;
         }
         while (currentLane > 0 && wordManager.IsOccupied(currentLane));
 
         if (!wordManager.IsOccupied(currentLane))
         {
-            transform.position = new Vector3(transform.position.x - moveAmount, transform.position.y, transform.position.z);
+            transform.localPosition = new Vector3(transform.localPosition.x - moveAmount, transform.localPosition.y, transform.localPosition.z);
         }
         else 
         {
@@ -84,19 +93,19 @@ public class Letter : MonoBehaviour
     {
         if (currentLane >= 4) { return; }
 
-        int moveAmount = 0;
+        float moveAmount = 0;
         int originalLane = currentLane;
 
         do 
         {
-            moveAmount += 1;
+            moveAmount += (Screen.width / 5) * 0.9f;
             currentLane += 1;
         }
         while (currentLane < 4 && wordManager.IsOccupied(currentLane));
 
         if (!wordManager.IsOccupied(currentLane))
         {
-            transform.position = new Vector3(transform.position.x + moveAmount, transform.position.y, transform.position.z);
+            transform.localPosition = new Vector3(transform.localPosition.x + moveAmount, transform.localPosition.y, transform.localPosition.z);
         }
         else 
         {
@@ -107,7 +116,7 @@ public class Letter : MonoBehaviour
     private void PlaceLetter()
     {
         isFalling = false;
-        transform.position = new Vector3(transform.position.x, wordYpos, transform.position.z);
+        transform.localPosition = new Vector3(transform.localPosition.x, wordYpos, transform.localPosition.z);
         wordManager.AddLetter(this, currentLane);
     }
 }   
