@@ -9,5 +9,5 @@ Lexdrop is a casual word game designed for mobile devices. A desktop-version can
 
 <br>
 
-<img src="https://github.com/Eeelis/lexdrop/blob/main/Images/lexdrop.jpg" width="800">
+<img src="https://github.com/Eeelis/lexdrop/blob/main/Images/Lexdrop.png" width="800">
 
